@@ -1,0 +1,40 @@
+pipeline {
+    agent any  // Runs on any available Jenkins node
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/suyogp7/battery-monitor/blob/main/battery_monitor.py' 
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './build.sh'  // Adjust if a different build command is used
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh './run-tests.sh'  // Replace with actual test script
+            }
+        }
+
+        stage('Save Output') {
+            steps {
+                sh 'cat /var/lib/jenkins/jobs/battery-monitor/builds/$(7)/log > jenkins-output.txt'
+            }
+        }
+
+        stage('Send Email Notification') {
+            steps {
+                emailext (
+                    subject: "Battery Monitor Jenkins Build Logs",
+                    body: "Pipeline completed. Logs attached.",
+                    attachmentsPattern: "jenkins-output.txt",
+                    to: "santoshbitra@gmail.com , suyogpatil58@gmail.com"
+                )
+            }
+        }
+    }
+}
